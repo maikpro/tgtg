@@ -20,13 +20,10 @@ export async function main() {
     console.log(
         `Check your email ('${process.env.YOUR_EMAIL}') to verify the login. You have 30 Seconds! (Mailbox on mobile won't work, if you have installed tgtg app.) ;D`,
     );
+
     await sleep(20 * 1000);
 
-    const token: Token = await tgtgClient.authByRequestPollingId(
-        authResponse.polling_id,
-    );
-
-    console.log(token);
+    await tgtgClient.authByRequestPollingId(authResponse.polling_id);
 
     const res = await tgtgClient.getFavoriteItems();
     console.log(res);

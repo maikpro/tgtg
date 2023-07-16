@@ -1,5 +1,15 @@
-# My TypeScript-NodeJS Starter Pack
+# Too Good to Go Favorites Watcher
 
--   Start with `npm start`
+## Description
+
+watches your favorite tgtg posts to notify you when an item is available.
+
+-   start with `npm start`
 -   nodemon with `npm start:watch`
-# tgtg
+
+### Dev ToDo's:
+
+- [ ] tgtg watcher should run in scheduled time
+- [ ] refresh token after an interval
+- [ ] add Telegram Bot
+
