@@ -17,11 +17,13 @@ export async function main() {
     }
 
     // sleep to verify email
+    const sleepTimeSec = 20;
+
     console.log(
-        `Check your email ('${process.env.YOUR_EMAIL}') to verify the login. You have 30 Seconds! (Mailbox on mobile won't work, if you have installed tgtg app.) ;D`,
+        `Check your email ('${process.env.YOUR_EMAIL}') to verify the login. You have ${sleepTimeSec} Seconds! (Mailbox on mobile won't work, if you have installed tgtg app.) ;D`,
     );
 
-    await sleep(20 * 1000);
+    await sleep(sleepTimeSec * 1000);
 
     await tgtgClient.authByRequestPollingId(authResponse.polling_id);
 
