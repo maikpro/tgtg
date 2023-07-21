@@ -4,5 +4,5 @@ export interface Token {
     created_at: number;
     lifetime: number;
 
-    user_id: string;
+    user_id?: string;
 }

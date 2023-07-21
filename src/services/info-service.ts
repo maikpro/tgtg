@@ -1,5 +1,5 @@
 export class InfoService {
-    static info() {
+    static info(): void {
         console.log(
             '========================================================================',
         );
@@ -30,5 +30,9 @@ export class InfoService {
             '========================================================================',
         );
         console.log('\n');
+    }
+
+    static dateTimeNow(): string {
+        return `[${new Date().toLocaleDateString()}, ${new Date().toLocaleTimeString()}]`;
     }
 }
