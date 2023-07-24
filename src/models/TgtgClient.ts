@@ -19,8 +19,7 @@ export class TgtgClient {
     constructor() {
         this.baseUrl = process.env.BASE_URL!;
         this.emailAuthUrl = this.baseUrl + process.env.AUTH_EMAIL!;
-        this.requestPollingIdUrl =
-            this.baseUrl + process.env.REQUEST_POLLING_ID_URL!;
+        this.requestPollingIdUrl = this.baseUrl + process.env.REQUEST_POLLING_ID_URL!;
         this.refreshUrl = this.baseUrl + process.env.REFRESH_URL!;
 
         this.itemsUrl = this.baseUrl + process.env.ITEMS_URL!;
@@ -31,8 +30,7 @@ export class TgtgClient {
 
     private get getHeaders(): any {
         const headers: any = {
-            'User-Agent':
-                'TooGoodToGo/21.9.0 (813) (iPhone/iPhone 7 (GSM); iOS 15.1; Scale/2.00)',
+            'User-Agent': 'TooGoodToGo/21.9.0 (813) (iPhone/iPhone 7 (GSM); iOS 15.1; Scale/2.00)',
             'Content-Type': 'application/json; charset=utf-8',
             Accept: 'application/json',
             'Accept-Language': 'en-US',
@@ -58,26 +56,18 @@ export class TgtgClient {
      * sends an email to your email. Open this email with its link on your computer to verify the login.
      */
     public async login(): Promise<AuthResponse> {
-        return await RestClientService.postForJson<AuthResponse>(
-            this.emailAuthUrl,
-            this.getHeaders,
-            {
-                device_type: this.deviceType,
-                email: this.email,
-            },
-        );
+        return await RestClientService.postForJson<AuthResponse>(this.emailAuthUrl, this.getHeaders, {
+            device_type: this.deviceType,
+            email: this.email,
+        });
     }
 
     public async authByRequestPollingId(polling_id: string): Promise<void> {
-        const response = await RestClientService.postForResponse(
-            this.requestPollingIdUrl,
-            this.getHeaders,
-            {
-                device_type: this.deviceType,
-                email: this.email,
-                request_polling_id: polling_id,
-            },
-        );
+        const response = await RestClientService.postForResponse(this.requestPollingIdUrl, this.getHeaders, {
+            device_type: this.deviceType,
+            email: this.email,
+            request_polling_id: polling_id,
+        });
         const responseJson = await response.json();
         this.token = this.createToken(responseJson);
         this.cookie = response.headers.get('Set-Cookie');
@@ -94,16 +84,10 @@ export class TgtgClient {
     }
 
     public async refreshToken(): Promise<void> {
-        const response = await RestClientService.postForResponse(
-            this.refreshUrl,
-            this.getHeaders,
-            {
-                refresh_token: this.token?.refresh_token,
-            },
-        );
+        const response = await RestClientService.postForResponse(this.refreshUrl, this.getHeaders, {
+            refresh_token: this.token?.refresh_token,
+        });
         const responseJson = await response.json();
-        //console.log(responseJson);
-
         this.token = this.createToken(responseJson);
         this.cookie = response.headers.get('Set-Cookie');
     }
@@ -117,19 +101,15 @@ export class TgtgClient {
 
     public async getFavoriteItems(): Promise<Post[]> {
         return (
-            await RestClientService.postForJson<any>(
-                this.itemsUrl,
-                this.getHeaders,
-                {
-                    favorites_only: true,
-                    origin: {
-                        latitude: 0.0,
-                        longitude: 0.0,
-                    },
-                    radius: 20,
-                    user_id: this.token?.user_id,
+            await RestClientService.postForJson<any>(this.itemsUrl, this.getHeaders, {
+                favorites_only: true,
+                origin: {
+                    latitude: 0.0,
+                    longitude: 0.0,
                 },
-            )
+                radius: 20,
+                user_id: this.token?.user_id,
+            })
         )['items'];
     }
 }

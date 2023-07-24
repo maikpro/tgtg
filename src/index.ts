@@ -3,9 +3,10 @@ import { InfoService } from './services/info-service';
 import { TgtgClient } from './models/TgtgClient';
 import { AuthResponse } from './models/AuthResponse';
 import { sleep } from './utils/sleep';
-import { Token } from './models/Token';
+import { TelegramBotService } from './services/telegram-bot-service';
 
 const tgtgClient = new TgtgClient();
+const telegramBotService = new TelegramBotService();
 
 export async function main() {
     if (!tgtgClient.getToken) {
@@ -31,12 +32,10 @@ export async function main() {
         await tgtgClient.authByRequestPollingId(authResponse.polling_id);
     } else {
         // after first login
-        console.log(`${InfoService.dateTimeNow()} Crawling again... `);
+        console.log(`${InfoService.dateTimeNow()} Crawling again...`);
 
         if (!tgtgClient.isTokenValid()) {
-            console.log(
-                `${InfoService.dateTimeNow()} Token will be refreshed...`,
-            );
+            console.log(`${InfoService.dateTimeNow()} Token will be refreshed...`);
             await tgtgClient.refreshToken();
         }
     }
@@ -44,7 +43,14 @@ export async function main() {
 
     posts.forEach((post) => {
         console.log(post.display_name, post.items_available);
+        if (post.items_available > 0) {
+            // send message to telegram chat!
+        }
     });
+
+    telegramBotService.start();
 }
 
 main();
+sleep(5000);
+setInterval(() => main(), parseInt(process.env.CRAWLING_INTERVAL!) * 1000);

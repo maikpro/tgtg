@@ -1,9 +1,5 @@
 export class RestClientService {
-    public static async postForJson<Type>(
-        url: string,
-        headers: HeadersInit,
-        body: any,
-    ): Promise<Type> {
+    public static async postForJson<Type>(url: string, headers: HeadersInit, body: any): Promise<Type> {
         try {
             const response = await fetch(url, {
                 method: 'POST',
@@ -20,11 +16,7 @@ export class RestClientService {
         }
     }
 
-    public static async postForResponse(
-        url: string,
-        headers: HeadersInit,
-        body: any,
-    ): Promise<Response> {
+    public static async postForResponse(url: string, headers: HeadersInit, body: any): Promise<Response> {
         try {
             const response = await fetch(url, {
                 method: 'POST',
