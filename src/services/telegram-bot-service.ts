@@ -1,4 +1,6 @@
 import { Telegraf, Telegram } from 'telegraf';
+import { Update } from 'telegraf/typings/core/types/typegram';
+import { UpdateType } from 'telegraf/typings/telegram-types';
 
 export class TelegramBotService {
     private telegramBot: Telegram;
@@ -9,7 +11,14 @@ export class TelegramBotService {
         this.chatId = process.env.CHAT_ID!;
     }
 
-    public start() {
-        this.telegramBot.sendMessage(this.chatId, 'Hello World!');
+    public sendMessage(message: string): void {
+        this.telegramBot.sendMessage(this.chatId, `${message}`);
+    }
+
+    public async hearsHi(): Promise<void> {
+        let allowedUpdates: UpdateType[] = ['message'];
+        let updates: Update[] = await this.telegramBot.getUpdates(0, 100, 10, allowedUpdates);
+
+        console.log(updates);
     }
 }
