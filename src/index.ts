@@ -4,43 +4,70 @@ import { TgtgClient } from './models/TgtgClient';
 import { AuthResponse } from './models/AuthResponse';
 import { sleep } from './utils/sleep';
 import { TelegramBotService } from './services/telegram-bot-service';
+import { FileService } from './services/file-service';
 
 const tgtgClient = new TgtgClient();
 const telegramBotService = new TelegramBotService();
 
 const itemIDsSend = new Map<string, number>();
+const tokenFilename = process.env.TOKEN_FILENAME;
+const cookieFilename = process.env.COOKIE_FILENAME;
 
 export async function main() {
-    //await telegramBotService.hearsHi();
+    if (!tokenFilename) throw 'Define your filename in TOKEN_FILENAME inside .env file!';
+    if (!cookieFilename) throw 'Define your filename in COOKIE_FILENAME inside .env file!';
 
     if (!tgtgClient.getToken) {
-        // first start needs a login...
+        // check if file with token is available
+        const tokenFileExists = await FileService.checkIfFileExists(tokenFilename);
+        const cookieFileExists = await FileService.checkIfFileExists(cookieFilename);
 
-        InfoService.info();
+        if (tokenFileExists && cookieFileExists) {
+            const tokenFromFile = await FileService.readJSONFile(tokenFilename);
+            tgtgClient.setToken(tokenFromFile);
 
-        const authResponse: AuthResponse = await tgtgClient.login();
-        if (!authResponse.polling_id) {
-            console.error('No polling_id found!');
-            return;
+            const cookieFromFile = await FileService.readFile(cookieFilename);
+            tgtgClient.setCookie(cookieFromFile);
+
+            if (!tgtgClient.isTokenValid()) {
+                console.log(`${InfoService.dateTimeNow()} Token will be refreshed...`);
+                telegramBotService.sendMessage(`🔁 Token will be refreshed...`);
+                await tgtgClient.refreshToken();
+                await FileService.writeFile(cookieFilename, tgtgClient.getCookie);
+            } else {
+                telegramBotService.sendMessage(`👋🏻🐻 BreadBot started from file-tokens...`);
+            }
+        } else {
+            // first start needs a login...
+            InfoService.info();
+
+            const authResponse: AuthResponse = await tgtgClient.login();
+            if (!authResponse.polling_id) {
+                console.error('No polling_id found!');
+                return;
+            }
+
+            // sleep to verify email
+            const sleepTimeSec = 30;
+
+            console.log(
+                `Check your email ('${process.env.YOUR_EMAIL}') to verify the login. You have ${sleepTimeSec} Seconds! (Mailbox on mobile won't work, if you have installed tgtg app.) ;D`,
+            );
+
+            await sleep(sleepTimeSec * 1000);
+
+            await tgtgClient.authByRequestPollingId(authResponse.polling_id);
+            telegramBotService.sendMessage(`👋🏻🐻 BreadBot started...`);
+            await FileService.writeJSONFile(tokenFilename, tgtgClient.getToken);
+            await FileService.writeFile(cookieFilename, tgtgClient.getCookie);
         }
-
-        // sleep to verify email
-        const sleepTimeSec = 30;
-
-        console.log(
-            `Check your email ('${process.env.YOUR_EMAIL}') to verify the login. You have ${sleepTimeSec} Seconds! (Mailbox on mobile won't work, if you have installed tgtg app.) ;D`,
-        );
-
-        await sleep(sleepTimeSec * 1000);
-
-        await tgtgClient.authByRequestPollingId(authResponse.polling_id);
-        telegramBotService.sendMessage(`👋🏻🐻 BreadBot started...`);
     } else {
         // after first login
         if (!tgtgClient.isTokenValid()) {
             console.log(`${InfoService.dateTimeNow()} Token will be refreshed...`);
             telegramBotService.sendMessage(`🔁 Token will be refreshed...`);
             await tgtgClient.refreshToken();
+            await FileService.writeFile(cookieFilename, tgtgClient.getCookie);
         }
     }
 
@@ -77,6 +104,6 @@ export async function main() {
 
     // Polling...
     await new Promise((resolve) => setTimeout(resolve, parseInt(process.env.CRAWLING_INTERVAL!) * 1000));
-    main();
+    await main();
 }
 main();

@@ -19,6 +19,12 @@ ITEMS_URL = /item/v8/
 # Crawling time in SECONDS!
 CRAWLING_INTERVAL = 30
 
+# Token Filename
+TOKEN_FILENAME = tgtg_token.json
+
+# Cookie Filename
+COOKIE_FILENAME = tgtg_cookie.txt
+
 # Bot settings
 # How to get a Bot Token? -> https://core.telegram.org/bots#how-do-i-create-a-bot
 TELEGRAM_BOT_TOKEN = <YOUR_BOT_TOKEN>
@@ -36,4 +42,5 @@ YOUR_EMAIL = <email>
 -   [x] tgtg watcher should run in scheduled time
 -   [x] refresh token after an interval
 -   [x] add Telegram Bot
+-   [ ] save token in file
 -   [ ] add commands to telegram bot

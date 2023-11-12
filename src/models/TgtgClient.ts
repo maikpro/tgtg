@@ -52,6 +52,18 @@ export class TgtgClient {
         return this.token;
     }
 
+    public setToken(token: Token): void {
+        this.token = token;
+    }
+
+    public get getCookie(): any {
+        return this.cookie;
+    }
+
+    public setCookie(cookie: any): void {
+        this.cookie = cookie;
+    }
+
     /**
      * sends an email to your email. Open this email with its link on your computer to verify the login.
      */
