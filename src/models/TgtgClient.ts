@@ -124,4 +124,10 @@ export class TgtgClient {
             })
         )['items'];
     }
+
+    public async getFavoriteItemsById(id: string): Promise<Post> {
+        return await RestClientService.postForJson<any>(`${this.itemsUrl}/${id}`, this.getHeaders, {
+            user_id: this.token?.user_id,
+        });
+    }
 }

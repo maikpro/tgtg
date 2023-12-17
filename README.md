@@ -42,5 +42,6 @@ YOUR_EMAIL = <email>
 -   [x] tgtg watcher should run in scheduled time
 -   [x] refresh token after an interval
 -   [x] add Telegram Bot
--   [ ] save token in file
+-   [x] save token in file
+-   [x] send message on quantity-change
 -   [ ] add commands to telegram bot

@@ -33,6 +33,7 @@ export async function main() {
                 console.log(`${InfoService.dateTimeNow()} Token will be refreshed...`);
                 telegramBotService.sendMessage(`🔁 Token will be refreshed...`);
                 await tgtgClient.refreshToken();
+                await FileService.writeJSONFile(tokenFilename, tgtgClient.getToken);
                 await FileService.writeFile(cookieFilename, tgtgClient.getCookie);
             } else {
                 telegramBotService.sendMessage(`👋🏻🐻 BreadBot started from file-tokens...`);
@@ -67,6 +68,7 @@ export async function main() {
             console.log(`${InfoService.dateTimeNow()} Token will be refreshed...`);
             telegramBotService.sendMessage(`🔁 Token will be refreshed...`);
             await tgtgClient.refreshToken();
+            await FileService.writeJSONFile(tokenFilename, tgtgClient.getToken);
             await FileService.writeFile(cookieFilename, tgtgClient.getCookie);
         }
     }
@@ -85,22 +87,30 @@ export async function main() {
 
             // send message to telegram chat but every 30min updates!
             telegramBotService.sendMessage(
-                `New 🍞 in ${post.display_name} - 🔹Quantity: ${post.items_available}
+                `🆕🍞 @${post.display_name} 🍞🥳 - 🔹Quantity: ${post.items_available}
                 https://share.toogoodtogo.com/item/${post.item.item_id}`,
             );
 
             // save item to prevent from sending again every 30s...
-            itemIDsSend.set(post.item.item_id, Date.now());
-        }
-
-        // clean up
-        const timeSaved = itemIDsSend.get(post.item.item_id);
-        if (timeSaved && Date.now() >= timeSaved + 30 * 60 * 1000) {
-            console.log(`${InfoService.dateTimeNow()} [${post.items_available}} deleted...`);
-            itemIDsSend.delete(post.item.item_id);
-            telegramBotService.sendMessage(`🚮 Cleaned up the saved items...`);
+            itemIDsSend.set(post.item.item_id, post.items_available);
         }
     });
+
+    // check for updates
+    for (let itemID of itemIDsSend.keys()) {
+        const post = await tgtgClient.getFavoriteItemsById(itemID);
+        const lastAvailable = itemIDsSend.get(itemID);
+        const updatedAvailable = post.items_available;
+        if (lastAvailable !== updatedAvailable) {
+            telegramBotService.sendMessage(
+                `🔄️[UPDATE] in ${post.display_name} - 🔹Quantity: ${post.items_available}
+                https://share.toogoodtogo.com/item/${post.item.item_id}`,
+            );
+
+            // update old value
+            itemIDsSend.set(post.item.item_id, post.items_available);
+        }
+    }
 
     // Polling...
     await new Promise((resolve) => setTimeout(resolve, parseInt(process.env.CRAWLING_INTERVAL!) * 1000));
