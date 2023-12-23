@@ -50,4 +50,13 @@ export class FileService {
         }
         return result;
     }
+
+    public static async deleteFile(filename: string): Promise<void> {
+        try {
+            await fsPromise.unlink(filename);
+            console.log(`File ${filename} has been deleted.`);
+        } catch (err) {
+            console.error(err);
+        }
+    }
 }

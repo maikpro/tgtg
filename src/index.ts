@@ -17,103 +17,121 @@ export async function main() {
     if (!tokenFilename) throw 'Define your filename in TOKEN_FILENAME inside .env file!';
     if (!cookieFilename) throw 'Define your filename in COOKIE_FILENAME inside .env file!';
 
-    if (!tgtgClient.getToken) {
-        // check if file with token is available
-        const tokenFileExists = await FileService.checkIfFileExists(tokenFilename);
-        const cookieFileExists = await FileService.checkIfFileExists(cookieFilename);
+    try {
+        if (!tgtgClient.getToken) {
+            // check if file with token is available
+            const tokenFileExists = await FileService.checkIfFileExists(tokenFilename);
+            const cookieFileExists = await FileService.checkIfFileExists(cookieFilename);
 
-        if (tokenFileExists && cookieFileExists) {
-            const tokenFromFile = await FileService.readJSONFile(tokenFilename);
-            tgtgClient.setToken(tokenFromFile);
+            if (tokenFileExists && cookieFileExists) {
+                const tokenFromFile = await FileService.readJSONFile(tokenFilename);
+                tgtgClient.setToken(tokenFromFile);
 
-            const cookieFromFile = await FileService.readFile(cookieFilename);
-            tgtgClient.setCookie(cookieFromFile);
+                const cookieFromFile = await FileService.readFile(cookieFilename);
+                tgtgClient.setCookie(cookieFromFile);
 
+                if (!tgtgClient.isTokenValid()) {
+                    console.log(`${InfoService.dateTimeNow()} Token will be refreshed...`);
+                    telegramBotService.sendMessage(`🔁 Token will be refreshed...`);
+                    await tgtgClient.refreshToken();
+                    await FileService.writeJSONFile(tokenFilename, tgtgClient.getToken);
+                    await FileService.writeFile(cookieFilename, tgtgClient.getCookie);
+                } else {
+                    telegramBotService.sendMessage(`👋🏻🐻 BreadBot started from file-tokens...`);
+                }
+            } else {
+                // first start needs a login...
+                InfoService.info();
+
+                const authResponse: AuthResponse = await tgtgClient.login();
+                if (!authResponse.polling_id) {
+                    console.error('No polling_id found!');
+                    return;
+                }
+
+                // sleep to verify email
+                const sleepTimeSec = 30;
+
+                console.log(
+                    `Check your email ('${process.env.YOUR_EMAIL}') to verify the login. You have ${sleepTimeSec} Seconds! (Mailbox on mobile won't work, if you have installed tgtg app.) ;D`,
+                );
+
+                await sleep(sleepTimeSec * 1000);
+
+                await tgtgClient.authByRequestPollingId(authResponse.polling_id);
+                telegramBotService.sendMessage(`👋🏻🐻 BreadBot started...`);
+                await FileService.writeJSONFile(tokenFilename, tgtgClient.getToken);
+                await FileService.writeFile(cookieFilename, tgtgClient.getCookie);
+            }
+        } else {
+            // after first login
             if (!tgtgClient.isTokenValid()) {
                 console.log(`${InfoService.dateTimeNow()} Token will be refreshed...`);
                 telegramBotService.sendMessage(`🔁 Token will be refreshed...`);
                 await tgtgClient.refreshToken();
                 await FileService.writeJSONFile(tokenFilename, tgtgClient.getToken);
                 await FileService.writeFile(cookieFilename, tgtgClient.getCookie);
-            } else {
-                telegramBotService.sendMessage(`👋🏻🐻 BreadBot started from file-tokens...`);
             }
-        } else {
-            // first start needs a login...
-            InfoService.info();
-
-            const authResponse: AuthResponse = await tgtgClient.login();
-            if (!authResponse.polling_id) {
-                console.error('No polling_id found!');
-                return;
-            }
-
-            // sleep to verify email
-            const sleepTimeSec = 30;
-
-            console.log(
-                `Check your email ('${process.env.YOUR_EMAIL}') to verify the login. You have ${sleepTimeSec} Seconds! (Mailbox on mobile won't work, if you have installed tgtg app.) ;D`,
-            );
-
-            await sleep(sleepTimeSec * 1000);
-
-            await tgtgClient.authByRequestPollingId(authResponse.polling_id);
-            telegramBotService.sendMessage(`👋🏻🐻 BreadBot started...`);
-            await FileService.writeJSONFile(tokenFilename, tgtgClient.getToken);
-            await FileService.writeFile(cookieFilename, tgtgClient.getCookie);
         }
-    } else {
-        // after first login
-        if (!tgtgClient.isTokenValid()) {
-            console.log(`${InfoService.dateTimeNow()} Token will be refreshed...`);
-            telegramBotService.sendMessage(`🔁 Token will be refreshed...`);
-            await tgtgClient.refreshToken();
-            await FileService.writeJSONFile(tokenFilename, tgtgClient.getToken);
-            await FileService.writeFile(cookieFilename, tgtgClient.getCookie);
+
+        console.log(`${InfoService.dateTimeNow()} Crawling started...`);
+        const posts = await tgtgClient.getFavoriteItems();
+        posts.forEach((post) => {
+            //console.log(JSON.stringify(post));
+            const isMessageAlreadySaved = itemIDsSend.has(post.item.item_id);
+            if (post.items_available > 0 && !isMessageAlreadySaved) {
+                console.log(
+                    `${InfoService.dateTimeNow()} I've found some 🍞🥳 @${post.display_name} - 🔹Quantity: ${
+                        post.items_available
+                    }`,
+                );
+
+                // send message to telegram chat but every 30min updates!
+                telegramBotService.sendMessage(
+                    `🆕🍞 @${post.display_name} 🍞🥳 - 🔹Quantity: ${post.items_available}
+                    https://share.toogoodtogo.com/item/${post.item.item_id}`,
+                );
+
+                // save item to prevent from sending again every 30s...
+                itemIDsSend.set(post.item.item_id, post.items_available);
+            }
+        });
+
+        // check for updates
+        for (let itemID of itemIDsSend.keys()) {
+            const post = await tgtgClient.getFavoriteItemsById(itemID);
+            const lastAvailable = itemIDsSend.get(itemID);
+            const updatedAvailable = post.items_available;
+            if (lastAvailable !== updatedAvailable) {
+                telegramBotService.sendMessage(
+                    `🔄️[UPDATE] in ${post.display_name} - 🔹Quantity: ${post.items_available}
+                    https://share.toogoodtogo.com/item/${post.item.item_id}`,
+                );
+
+                // update old value
+                itemIDsSend.set(post.item.item_id, post.items_available);
+            }
+        }
+
+        // Polling...
+        await new Promise((resolve) => setTimeout(resolve, parseInt(process.env.CRAWLING_INTERVAL!) * 1000));
+        await main();
+    } catch (e) {
+        console.error(e);
+
+        const tokenFileExists = await FileService.checkIfFileExists(tokenFilename);
+        const cookieFileExists = await FileService.checkIfFileExists(cookieFilename);
+
+        if (tokenFileExists) {
+            console.log(`Deleting ${tokenFilename}...`);
+            FileService.deleteFile(tokenFilename);
+        }
+
+        if (cookieFileExists) {
+            console.log(`Deleting ${cookieFilename}...`);
+            FileService.deleteFile(cookieFilename);
         }
     }
-
-    console.log(`${InfoService.dateTimeNow()} Crawling started...`);
-    const posts = await tgtgClient.getFavoriteItems();
-    posts.forEach((post) => {
-        //console.log(JSON.stringify(post));
-        const isMessageAlreadySaved = itemIDsSend.has(post.item.item_id);
-        if (post.items_available > 0 && !isMessageAlreadySaved) {
-            console.log(
-                `${InfoService.dateTimeNow()} I've found some 🍞🥳 @${post.display_name} - 🔹Quantity: ${
-                    post.items_available
-                }`,
-            );
-
-            // send message to telegram chat but every 30min updates!
-            telegramBotService.sendMessage(
-                `🆕🍞 @${post.display_name} 🍞🥳 - 🔹Quantity: ${post.items_available}
-                https://share.toogoodtogo.com/item/${post.item.item_id}`,
-            );
-
-            // save item to prevent from sending again every 30s...
-            itemIDsSend.set(post.item.item_id, post.items_available);
-        }
-    });
-
-    // check for updates
-    for (let itemID of itemIDsSend.keys()) {
-        const post = await tgtgClient.getFavoriteItemsById(itemID);
-        const lastAvailable = itemIDsSend.get(itemID);
-        const updatedAvailable = post.items_available;
-        if (lastAvailable !== updatedAvailable) {
-            telegramBotService.sendMessage(
-                `🔄️[UPDATE] in ${post.display_name} - 🔹Quantity: ${post.items_available}
-                https://share.toogoodtogo.com/item/${post.item.item_id}`,
-            );
-
-            // update old value
-            itemIDsSend.set(post.item.item_id, post.items_available);
-        }
-    }
-
-    // Polling...
-    await new Promise((resolve) => setTimeout(resolve, parseInt(process.env.CRAWLING_INTERVAL!) * 1000));
-    await main();
 }
+
 main();
