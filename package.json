@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "build": "tsc",
+        "build": "tsc && cp .env ./build/.env && cp .env.production ./build/.env.production ",
         "prod": "node src",
         "start": "NODE_ENV=production ts-node -r dotenv-flow/config src",
         "dev": "NODE_ENV=development ts-node -r dotenv-flow/config src",
@@ -20,17 +20,17 @@
         "@types/node": "^20.4.1",
         "@typescript-eslint/eslint-plugin": "^5.61.0",
         "@typescript-eslint/parser": "^5.61.0",
-        "cross-env": "^7.0.3",
         "eslint": "^8.44.0",
         "eslint-config-prettier": "^8.8.0",
         "nodemon": "^3.0.1",
-        "prettier": "^3.0.0",
-        "ts-node": "^10.9.1",
-        "typescript": "^5.1.6"
+        "prettier": "^3.0.0"
     },
     "dependencies": {
+        "ts-node": "^10.9.1",
         "dotenv": "^16.3.1",
         "dotenv-flow": "^4.0.1",
-        "telegraf": "^4.12.2"
+        "telegraf": "^4.12.2",
+        "typescript": "^5.1.6",
+        "cross-env": "^7.0.3"
     }
 }
