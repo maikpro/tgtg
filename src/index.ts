@@ -75,6 +75,9 @@ export async function main() {
         }
 
         console.log(`${InfoService.dateTimeNow()} Crawling started...`);
+
+        await telegramBotService.listenForCommands();
+
         const posts = await tgtgClient.getFavoriteItems();
         posts.forEach((post) => {
             //console.log(JSON.stringify(post));
