@@ -4,6 +4,8 @@ export class InfoService {
 
         console.log('started TooGoodToGo Watcher...');
 
+        console.log(`running environment: ${process.env.NODE_ENV}`);
+
         console.log('========================================================================');
 
         console.log(`BASE_URL: '${process.env.BASE_URL}'`);

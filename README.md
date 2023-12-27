@@ -4,10 +4,20 @@
 
 watches your favorite tgtg posts to notify you when an item is available.
 
+## environment
+
+### for development
+
+use `.env.development` for your local testing
+
+-   and start your code with `npm run dev`
+
+### for prod
+
 -   start with `npm start`
 -   nodemon with `npm start:watch`
 
-### add .env in source folder with this structure:
+### add .env and .env.development in source folder with this structure:
 
 ```
 BASE_URL = https://apptoogoodtogo.com/api

@@ -1,4 +1,5 @@
-import 'dotenv/config';
+import dotenvFlow from 'dotenv-flow';
+dotenvFlow.config();
 import { InfoService } from './services/info-service';
 import { TgtgClient } from './models/TgtgClient';
 import { AuthResponse } from './models/AuthResponse';
@@ -12,10 +13,12 @@ const telegramBotService = new TelegramBotService();
 const itemIDsSend = new Map<string, number>();
 const tokenFilename = process.env.TOKEN_FILENAME;
 const cookieFilename = process.env.COOKIE_FILENAME;
+const verifyInterval = process.env.VERIFY_INTERVAL;
 
 export async function main() {
     if (!tokenFilename) throw 'Define your filename in TOKEN_FILENAME inside .env file!';
     if (!cookieFilename) throw 'Define your filename in COOKIE_FILENAME inside .env file!';
+    if (!verifyInterval) throw 'Define your filename in VERIFY_INTERVAL inside .env file!';
 
     try {
         if (!tgtgClient.getToken) {
@@ -49,14 +52,11 @@ export async function main() {
                     return;
                 }
 
-                // sleep to verify email
-                const sleepTimeSec = 30;
-
                 console.log(
-                    `Check your email ('${process.env.YOUR_EMAIL}') to verify the login. You have ${sleepTimeSec} Seconds! (Mailbox on mobile won't work, if you have installed tgtg app.) ;D`,
+                    `Check your email ('${process.env.YOUR_EMAIL}') to verify the login. You have ${verifyInterval} Seconds! (Mailbox on mobile won't work, if you have installed tgtg app.) ;D`,
                 );
 
-                await sleep(sleepTimeSec * 1000);
+                await sleep(parseInt(verifyInterval) * 1000);
 
                 await tgtgClient.authByRequestPollingId(authResponse.polling_id);
                 telegramBotService.sendMessage(`👋🏻🐻 BreadBot started...`);
@@ -135,3 +135,5 @@ export async function main() {
 }
 
 main();
+
+console.log(process.env.TEST);
