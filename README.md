@@ -4,11 +4,11 @@
 
 watches your favorite tgtg posts to notify you when an item is available.
 
-## environment
+## Environment
 
 ### for development
 
-use `.env.development` for your local testing
+use `.env.development` for your local development
 
 -   and start your code with `npm run dev`
 
@@ -29,10 +29,12 @@ ITEMS_URL = /item/v8/
 # Crawling time in SECONDS!
 CRAWLING_INTERVAL = 30
 
-# Token Filename
+# Token
+TOKEN_FILEPATH = ./data
 TOKEN_FILENAME = tgtg_token.json
 
-# Cookie Filename
+# Cookie
+COOKIE_FILEPATH = ./data
 COOKIE_FILENAME = tgtg_cookie.txt
 
 # Bot settings
@@ -47,11 +49,15 @@ CHAT_ID=<YOUR_CHAT_ID>
 YOUR_EMAIL = <email>
 ```
 
-### Dev ToDo's:
+## Docker / Docker-Compose
+
+run `docker-compose up -d` to create and run a docker container.
+
+## Features:
 
 -   [x] tgtg watcher should run in scheduled time
 -   [x] refresh token after an interval
 -   [x] add Telegram Bot
 -   [x] save token in file
 -   [x] send message on quantity-change
--   [ ] add commands to telegram bot
+-   [x] !health command added for health check

@@ -11,34 +11,38 @@ const tgtgClient = new TgtgClient();
 const telegramBotService = new TelegramBotService();
 
 const itemIDsSend = new Map<string, number>();
+const tokenFilePath = process.env.TOKEN_FILEPATH;
 const tokenFilename = process.env.TOKEN_FILENAME;
+const cookieFilePath = process.env.COOKIE_FILEPATH;
 const cookieFilename = process.env.COOKIE_FILENAME;
 const verifyInterval = process.env.VERIFY_INTERVAL;
 
 export async function main() {
+    if (!tokenFilePath) throw 'Define your filepath in TOKEN_FILEPATH inside .env file!';
     if (!tokenFilename) throw 'Define your filename in TOKEN_FILENAME inside .env file!';
+    if (!cookieFilePath) throw 'Define your filepath in COOKIE_FILEPATH inside .env file!';
     if (!cookieFilename) throw 'Define your filename in COOKIE_FILENAME inside .env file!';
     if (!verifyInterval) throw 'Define your filename in VERIFY_INTERVAL inside .env file!';
 
     try {
         if (!tgtgClient.getToken) {
             // check if file with token is available
-            const tokenFileExists = await FileService.checkIfFileExists(tokenFilename);
-            const cookieFileExists = await FileService.checkIfFileExists(cookieFilename);
+            const tokenFileExists = await FileService.checkIfFileExists(tokenFilePath, tokenFilename);
+            const cookieFileExists = await FileService.checkIfFileExists(cookieFilePath, cookieFilename);
 
             if (tokenFileExists && cookieFileExists) {
-                const tokenFromFile = await FileService.readJSONFile(tokenFilename);
+                const tokenFromFile = await FileService.readJSONFile(tokenFilePath, tokenFilename);
                 tgtgClient.setToken(tokenFromFile);
 
-                const cookieFromFile = await FileService.readFile(cookieFilename);
+                const cookieFromFile = await FileService.readFile(cookieFilePath, cookieFilename);
                 tgtgClient.setCookie(cookieFromFile);
 
                 if (!tgtgClient.isTokenValid()) {
                     console.log(`${InfoService.dateTimeNow()} Token will be refreshed...`);
                     telegramBotService.sendMessage(`🔁 Token will be refreshed...`);
                     await tgtgClient.refreshToken();
-                    await FileService.writeJSONFile(tokenFilename, tgtgClient.getToken);
-                    await FileService.writeFile(cookieFilename, tgtgClient.getCookie);
+                    await FileService.writeJSONFile(tokenFilePath, tokenFilename, tgtgClient.getToken);
+                    await FileService.writeFile(cookieFilePath, cookieFilename, tgtgClient.getCookie);
                 } else {
                     telegramBotService.sendMessage(`👋🏻🐻 BreadBot started from file-tokens...`);
                 }
@@ -60,8 +64,8 @@ export async function main() {
 
                 await tgtgClient.authByRequestPollingId(authResponse.polling_id);
                 telegramBotService.sendMessage(`👋🏻🐻 BreadBot started...`);
-                await FileService.writeJSONFile(tokenFilename, tgtgClient.getToken);
-                await FileService.writeFile(cookieFilename, tgtgClient.getCookie);
+                await FileService.writeJSONFile(tokenFilePath, tokenFilename, tgtgClient.getToken);
+                await FileService.writeFile(cookieFilePath, cookieFilename, tgtgClient.getCookie);
             }
         } else {
             // after first login
@@ -69,8 +73,8 @@ export async function main() {
                 console.log(`${InfoService.dateTimeNow()} Token will be refreshed...`);
                 telegramBotService.sendMessage(`🔁 Token will be refreshed...`);
                 await tgtgClient.refreshToken();
-                await FileService.writeJSONFile(tokenFilename, tgtgClient.getToken);
-                await FileService.writeFile(cookieFilename, tgtgClient.getCookie);
+                await FileService.writeJSONFile(tokenFilePath, tokenFilename, tgtgClient.getToken);
+                await FileService.writeFile(cookieFilePath, cookieFilename, tgtgClient.getCookie);
             }
         }
 
@@ -122,8 +126,8 @@ export async function main() {
     } catch (e) {
         console.error(e);
 
-        const tokenFileExists = await FileService.checkIfFileExists(tokenFilename);
-        const cookieFileExists = await FileService.checkIfFileExists(cookieFilename);
+        const tokenFileExists = await FileService.checkIfFileExists(tokenFilePath, tokenFilename);
+        const cookieFileExists = await FileService.checkIfFileExists(cookieFilePath, cookieFilename);
 
         if (tokenFileExists) {
             console.log(`Deleting ${tokenFilename}...`);
@@ -138,5 +142,3 @@ export async function main() {
 }
 
 main();
-
-console.log(process.env.TEST);
