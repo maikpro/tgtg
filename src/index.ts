@@ -6,6 +6,7 @@ import { AuthResponse } from './models/AuthResponse';
 import { sleep } from './utils/sleep';
 import { TelegramBotService } from './services/telegram-bot-service';
 import { FileService } from './services/file-service';
+import { TokenService } from './services/token-service';
 
 const tgtgClient = new TgtgClient();
 const telegramBotService = new TelegramBotService();
@@ -23,6 +24,8 @@ export async function main() {
     if (!cookieFilePath) throw 'Define your filepath in COOKIE_FILEPATH inside .env file!';
     if (!cookieFilename) throw 'Define your filename in COOKIE_FILENAME inside .env file!';
     if (!verifyInterval) throw 'Define your filename in VERIFY_INTERVAL inside .env file!';
+
+    await telegramBotService.listenForCommands();
 
     try {
         if (!tgtgClient.getToken) {
@@ -82,8 +85,6 @@ export async function main() {
 
         console.log(`${InfoService.dateTimeNow()} Crawling started...`);
 
-        await telegramBotService.listenForCommands();
-
         const posts = await tgtgClient.getFavoriteItems();
         posts.forEach((post) => {
             //console.log(JSON.stringify(post));
@@ -130,18 +131,7 @@ export async function main() {
 
         console.log('Trying to clean up...');
 
-        const tokenFileExists = await FileService.checkIfFileExists(tokenFilePath, tokenFilename);
-        const cookieFileExists = await FileService.checkIfFileExists(cookieFilePath, cookieFilename);
-
-        if (tokenFileExists) {
-            console.log(`Deleting ${tokenFilename}...`);
-            FileService.deleteFile(tokenFilename);
-        }
-
-        if (cookieFileExists) {
-            console.log(`Deleting ${cookieFilename}...`);
-            FileService.deleteFile(cookieFilename);
-        }
+        await TokenService.deleteTokens();
     }
 }
 

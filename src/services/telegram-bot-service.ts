@@ -1,6 +1,7 @@
 import { Telegraf, Telegram } from 'telegraf';
 import { UpdateType } from 'telegraf/typings/telegram-types';
 import { Message, Update } from 'typegram';
+import { TokenService } from './token-service';
 
 export class TelegramBotService {
     private telegramBot: Telegram;
@@ -26,6 +27,17 @@ export class TelegramBotService {
             const isMessageAlreadySent = this.sentMessagesQueue.has(messageUpdate.update_id);
             if (textMessage.text === '!health' && !isMessageAlreadySent) {
                 this.sendMessage("I'm alive! 🥳💚");
+                this.sentMessagesQueue.set(messageUpdate.update_id, textMessage.text);
+            }
+
+            if (textMessage.text === '!deleteTokens' && !isMessageAlreadySent) {
+                this.sendMessage('Tokens will be deleted now... 🥳💚');
+                await TokenService.deleteTokens();
+                this.sentMessagesQueue.set(messageUpdate.update_id, textMessage.text);
+            }
+
+            if (textMessage.text === '!cmds' && !isMessageAlreadySent) {
+                this.sendMessage('!health, !deleteTokens');
                 this.sentMessagesQueue.set(messageUpdate.update_id, textMessage.text);
             }
         }
