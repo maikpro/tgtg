@@ -20,7 +20,9 @@ use `.env.development` for your local development
 ### add .env and .env.development in source folder with this structure:
 
 ```
-BASE_URL = https://apptoogoodtogo.com/api
+# Need to run docker container with this docker image from here:
+# https://github.com/unixfox/pupflare
+BASE_URL = http://localhost:8888/?url=https://apptoogoodtogo.com/api
 AUTH_EMAIL = /auth/v3/authByEmail
 REQUEST_POLLING_ID_URL = /auth/v3/authByRequestPollingId
 REFRESH_URL = /auth/v3/token/refresh

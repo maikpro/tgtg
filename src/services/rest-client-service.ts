@@ -8,7 +8,7 @@ export class RestClientService {
             });
             if (!response.ok) {
                 console.error(`${response.status} - ${response.text}`);
-                throw new Error('Response failed!');
+                throw new Error(`${response.status} - ${response.text}`);
             }
             return await response.json();
         } catch (error) {
@@ -25,7 +25,7 @@ export class RestClientService {
             });
             if (!response.ok) {
                 console.error(`${response.status} - ${response.text}`);
-                throw new Error('Response failed!');
+                throw new Error(`${response.status} - ${response.text}`);
             }
             return response;
         } catch (error) {

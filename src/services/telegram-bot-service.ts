@@ -21,11 +21,13 @@ export class TelegramBotService {
         let allowedUpdates: UpdateType[] = ['message'];
         let updates: Update[] = await this.telegramBot.getUpdates(0, 100, 10, allowedUpdates);
         const messageUpdate = updates[updates.length - 1] as Update.MessageUpdate;
-        const textMessage = messageUpdate.message as Message.TextMessage;
-        const isMessageAlreadySent = this.sentMessagesQueue.has(messageUpdate.update_id);
-        if (textMessage.text === '!health' && !isMessageAlreadySent) {
-            this.sendMessage("I'm alive! 🥳💚");
-            this.sentMessagesQueue.set(messageUpdate.update_id, textMessage.text);
+        if (messageUpdate) {
+            const textMessage = messageUpdate.message as Message.TextMessage;
+            const isMessageAlreadySent = this.sentMessagesQueue.has(messageUpdate.update_id);
+            if (textMessage.text === '!health' && !isMessageAlreadySent) {
+                this.sendMessage("I'm alive! 🥳💚");
+                this.sentMessagesQueue.set(messageUpdate.update_id, textMessage.text);
+            }
         }
     }
 }

@@ -50,6 +50,8 @@ export async function main() {
                 // first start needs a login...
                 InfoService.info();
 
+                console.log('Trying to login...');
+
                 const authResponse: AuthResponse = await tgtgClient.login();
                 if (!authResponse.polling_id) {
                     console.error('No polling_id found!');
@@ -125,6 +127,8 @@ export async function main() {
         await main();
     } catch (e) {
         console.error(e);
+
+        console.log('Trying to clean up...');
 
         const tokenFileExists = await FileService.checkIfFileExists(tokenFilePath, tokenFilename);
         const cookieFileExists = await FileService.checkIfFileExists(cookieFilePath, cookieFilename);

@@ -8,12 +8,25 @@
 # database or a cache. For examples, see the Awesome Compose repository:
 # https://github.com/docker/awesome-compose
 services:
-    tgtg-bot:
+    pupflare:
+        image: quay.io/unixfox/pupflare
+        restart: always
+
+        ports:
+            - 8888:3000
+
+    bot:
+        depends_on:
+            - pupflare
         build:
             context: .
         restart: always
         environment:
-            NODE_ENV: production
+            NODE_ENV: development
+
+            # use pupflare service
+            BASE_URL: pupflare:8888/?url=https://apptoogoodtogo.com/api
+
             #Filepath
             TOKEN_FILEPATH: ./build/data
             TOKEN_FILENAME: tgtg_token.json

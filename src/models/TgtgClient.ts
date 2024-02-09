@@ -17,14 +17,28 @@ export class TgtgClient {
     private cookie?: any;
 
     constructor() {
-        this.baseUrl = process.env.BASE_URL!;
-        this.emailAuthUrl = this.baseUrl + process.env.AUTH_EMAIL!;
-        this.requestPollingIdUrl = this.baseUrl + process.env.REQUEST_POLLING_ID_URL!;
-        this.refreshUrl = this.baseUrl + process.env.REFRESH_URL!;
+        const baseUrl = process.env.BASE_URL;
+        const authEmail = process.env.AUTH_EMAIL;
+        const requestPollingIdUrl = process.env.REQUEST_POLLING_ID_URL;
+        const refreshUrl = process.env.REFRESH_URL;
+        const itemsUrlEnv = process.env.ITEMS_URL;
+        const yourEmail = process.env.YOUR_EMAIL!;
 
-        this.itemsUrl = this.baseUrl + process.env.ITEMS_URL!;
+        if (!baseUrl) throw 'Define your BASE_URL inside .env file!';
+        if (!authEmail) throw 'Define your AUTH_EMAIL inside .env file!';
+        if (!requestPollingIdUrl) throw 'Define your REQUEST_POLLING_ID_URL inside .env file!';
+        if (!refreshUrl) throw 'Define your REFRESH_URL inside .env file!';
+        if (!itemsUrlEnv) throw 'Define your ITEMS_URL inside .env file!';
+        if (!yourEmail) throw 'Define your YOUR_EMAIL inside .env file!';
 
-        this.email = process.env.YOUR_EMAIL!;
+        this.baseUrl = baseUrl;
+        this.emailAuthUrl = this.baseUrl + authEmail;
+        this.requestPollingIdUrl = this.baseUrl + requestPollingIdUrl;
+        this.refreshUrl = this.baseUrl + refreshUrl;
+
+        this.itemsUrl = this.baseUrl + itemsUrlEnv;
+
+        this.email = yourEmail;
         this.deviceType = 'IOS';
     }
 
@@ -96,12 +110,16 @@ export class TgtgClient {
     }
 
     public async refreshToken(): Promise<void> {
-        const response = await RestClientService.postForResponse(this.refreshUrl, this.getHeaders, {
-            refresh_token: this.token?.refresh_token,
-        });
-        const responseJson = await response.json();
-        this.token = this.createToken(responseJson);
-        this.cookie = response.headers.get('Set-Cookie');
+        try {
+            const response = await RestClientService.postForResponse(this.refreshUrl, this.getHeaders, {
+                refresh_token: this.token?.refresh_token,
+            });
+            const responseJson = await response.json();
+            this.token = this.createToken(responseJson);
+            this.cookie = response.headers.get('Set-Cookie');
+        } catch (e: unknown) {
+            console.error(e);
+        }
     }
 
     public isTokenValid(): boolean {
