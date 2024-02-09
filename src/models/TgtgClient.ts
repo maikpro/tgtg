@@ -39,12 +39,12 @@ export class TgtgClient {
         this.itemsUrl = this.baseUrl + itemsUrlEnv;
 
         this.email = yourEmail;
-        this.deviceType = 'IOS';
+        this.deviceType = 'ANDROID';
     }
 
     private get getHeaders(): any {
         const headers: any = {
-            'User-Agent': 'TooGoodToGo/21.9.0 (813) (iPhone/iPhone 7 (GSM); iOS 15.1; Scale/2.00)',
+            'User-Agent': 'TGTG/21.1.12 Dalvik/2.1.0 (Linux; Android 12; SM-G920V Build/MMB29K)',
             'Content-Type': 'application/json; charset=utf-8',
             Accept: 'application/json',
             'Accept-Language': 'en-US',
