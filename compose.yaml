@@ -24,9 +24,9 @@ services:
         ports:
             - 8989:8989
         volumes:
-            - tgtg-data:/usr/src/app/build/data
+            - data:/usr/src/app/build/data
 volumes:
-    tgtg-data:
+    data:
 # The commented out section below is an example of how to define a PostgreSQL
 # database that your application can use. `depends_on` tells Docker Compose to
 # start the database before your application. The `db-data` volume persists the
