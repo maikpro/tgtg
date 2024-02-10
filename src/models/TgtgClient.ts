@@ -66,7 +66,7 @@ export class TgtgClient {
         return this.token;
     }
 
-    public setToken(token: Token): void {
+    public setToken(token: Token | null): void {
         this.token = token;
     }
 

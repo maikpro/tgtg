@@ -31,7 +31,7 @@ export class TelegramBotService {
             }
 
             if (textMessage.text === '!deleteTokens' && !isMessageAlreadySent) {
-                this.sendMessage('Tokens will be deleted now... 🥳💚');
+                this.sendMessage('Tokens will be deleted now... 🚮');
                 await TokenService.deleteTokens();
                 this.sentMessagesQueue.set(messageUpdate.update_id, textMessage.text);
             }

@@ -132,6 +132,11 @@ export async function main() {
         console.log('Trying to clean up...');
 
         await TokenService.deleteTokens();
+        tgtgClient.setToken(null);
+
+        // on error restart after 30mins...
+        await new Promise((resolve) => setTimeout(resolve, 30 * 60 * 1000));
+        await main();
     }
 }
 
