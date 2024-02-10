@@ -17,6 +17,8 @@ const tokenFilename = process.env.TOKEN_FILENAME;
 const cookieFilePath = process.env.COOKIE_FILEPATH;
 const cookieFilename = process.env.COOKIE_FILENAME;
 const verifyInterval = process.env.VERIFY_INTERVAL;
+const crawlingInterval = process.env.CRAWLING_INTERVAL;
+const restartTime = process.env.RESTARTING_TIME;
 
 export async function main() {
     if (!tokenFilePath) throw 'Define your filepath in TOKEN_FILEPATH inside .env file!';
@@ -24,6 +26,8 @@ export async function main() {
     if (!cookieFilePath) throw 'Define your filepath in COOKIE_FILEPATH inside .env file!';
     if (!cookieFilename) throw 'Define your filename in COOKIE_FILENAME inside .env file!';
     if (!verifyInterval) throw 'Define your filename in VERIFY_INTERVAL inside .env file!';
+    if (!crawlingInterval) throw 'Define your filepath in CRAWLING_INTERVAL inside .env file!';
+    if (!restartTime) throw 'Define your filepath in RESTARTING_TIME inside .env file!';
 
     await telegramBotService.listenForCommands();
 
@@ -124,7 +128,7 @@ export async function main() {
         }
 
         // Polling...
-        await new Promise((resolve) => setTimeout(resolve, parseInt(process.env.CRAWLING_INTERVAL!) * 1000));
+        await new Promise((resolve) => setTimeout(resolve, parseInt(crawlingInterval) * 1000));
         await main();
     } catch (e) {
         console.error(e);
@@ -135,7 +139,9 @@ export async function main() {
         tgtgClient.setToken(null);
 
         // on error restart after 30mins...
-        await new Promise((resolve) => setTimeout(resolve, 30 * 60 * 1000));
+        console.log(`Bot will be restarted in ${restartTime} mins...`);
+        telegramBotService.sendMessage(`Bot will be restarted in ${restartTime} mins...`);
+        await new Promise((resolve) => setTimeout(resolve, parseInt(restartTime) * 60 * 1000));
         await main();
     }
 }
