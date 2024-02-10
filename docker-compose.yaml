@@ -1,13 +1,13 @@
 services:
-    pupflare:
-        image: quay.io/unixfox/pupflare
-        restart: always
-        ports:
-            - 8888:3000
+    #pupflare:
+    #    image: quay.io/unixfox/pupflare
+    #    restart: always
+    #    ports:
+    #        - 8888:3000
 
     bot:
-        depends_on:
-            - pupflare
+        #depends_on:
+        #    - pupflare
         build:
             context: .
         restart: always
@@ -27,6 +27,6 @@ services:
         ports:
             - 8989:8989
         volumes:
-            - data:/usr/src/app/build/data
+            - authdata:/usr/src/app/build/data
 volumes:
-    data:
+    authdata:

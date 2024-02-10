@@ -7,6 +7,8 @@ export class TelegramBotService {
     private telegramBot: Telegram;
     private chatId: string;
     private sentMessagesQueue: Map<number, string>;
+    // on Server start dont read chat... to stop strange behaviour on !deleteTokens
+    private isFirstStart = true;
 
     constructor() {
         this.telegramBot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN!).telegram;
@@ -25,6 +27,13 @@ export class TelegramBotService {
         if (messageUpdate) {
             const textMessage = messageUpdate.message as Message.TextMessage;
             const isMessageAlreadySent = this.sentMessagesQueue.has(messageUpdate.update_id);
+
+            if (this.isFirstStart) {
+                console.log('skip telegram-messages before start');
+                this.sentMessagesQueue.set(messageUpdate.update_id, textMessage.text);
+                this.isFirstStart = false;
+            }
+
             if (textMessage.text === '!health' && !isMessageAlreadySent) {
                 this.sendMessage("I'm alive! 🥳💚");
                 this.sentMessagesQueue.set(messageUpdate.update_id, textMessage.text);

@@ -17,12 +17,12 @@ export class TokenService {
 
         if (tokenFileExists) {
             console.log(`Deleting ${tokenFilename}...`);
-            FileService.deleteFile(tokenFilename);
+            FileService.deleteFile(tokenFilePath, tokenFilename);
         }
 
         if (cookieFileExists) {
             console.log(`Deleting ${cookieFilename}...`);
-            FileService.deleteFile(cookieFilename);
+            FileService.deleteFile(tokenFilePath, cookieFilename);
         }
     }
 }

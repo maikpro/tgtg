@@ -54,10 +54,10 @@ export class FileService {
         return result;
     }
 
-    public static async deleteFile(filename: string): Promise<void> {
+    public static async deleteFile(filePath: string, filename: string): Promise<void> {
         try {
-            await fsPromise.unlink(filename);
-            console.log(`File ${filename} has been deleted.`);
+            await fsPromise.unlink(`${filePath}/${filename}`);
+            console.log(`File ${filePath}/${filename} has been deleted.`);
         } catch (err: unknown) {
             console.error(err);
         }
