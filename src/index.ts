@@ -53,6 +53,7 @@ export async function main() {
                 }
             } else {
                 await login();
+                sleep(30);
             }
         } else {
             if (!tgtgClient.isTokenValid()) {
@@ -75,7 +76,7 @@ export async function main() {
         // on error restart
         console.log(`Bot will be restarted in ${restartTime} mins...`);
         telegramBotService.sendMessage(`Bot will be restarted in ${restartTime} mins...`);
-        await new Promise((resolve) => setTimeout(resolve, parseInt(restartTime) * 60 * 1000));
+        await sleep(parseInt(restartTime) * 60);
         await main();
     }
 }
@@ -98,7 +99,7 @@ async function login() {
         `Check your email ('${process.env.YOUR_EMAIL}') to verify the login. You have ${verifyInterval} Seconds! (Mailbox on mobile won't work, if you have installed tgtg app.) ;D`,
     );
 
-    await sleep(parseInt(verifyInterval) * 1000);
+    await sleep(parseInt(verifyInterval));
 
     await tgtgClient.authByRequestPollingId(authResponse.polling_id);
     telegramBotService.sendMessage(`👋🏻🐻 BreadBot started...`);
@@ -142,6 +143,7 @@ async function crawling() {
         }
     });
 
+    await sleep(67);
     await checkForItemUpdates();
 }
 

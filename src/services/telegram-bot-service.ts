@@ -32,6 +32,7 @@ export class TelegramBotService {
                 console.log('skip telegram-messages before start');
                 this.sentMessagesQueue.set(messageUpdate.update_id, textMessage.text);
                 this.isFirstStart = false;
+				return;
             }
 
             if (textMessage.text === '!health' && !isMessageAlreadySent) {

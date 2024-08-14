@@ -7,8 +7,8 @@ export class RestClientService {
                 body: JSON.stringify(body),
             });
             if (!response.ok) {
-                console.error(`${response.status} - ${response.text}`);
-                throw new Error(`${response.status} - ${response.text}`);
+                console.error(`${response.status} - ${await response.text()}`);
+                throw new Error(`${response.status} - ${await response.text()}`);
             }
             return await response.json();
         } catch (error) {

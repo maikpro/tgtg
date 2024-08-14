@@ -134,8 +134,8 @@ export class TgtgClient {
             await RestClientService.postForJson<any>(this.itemsUrl, this.getHeaders, {
                 favorites_only: true,
                 origin: {
-                    latitude: 0.0,
-                    longitude: 0.0,
+                    latitude: 53.551086,
+                    longitude: 9.993682,
                 },
                 radius: 20,
                 user_id: this.token?.user_id,
